@@ -51,8 +51,11 @@ const MagicChessPredictor: React.FC = () => {
     buttonInactive: { backgroundColor: '#f0f0f0', color: 'black' },
     resetButton: { padding: '10px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginBottom: '20px' },
     nextButton: { marginTop: '20px', padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' },
-    predictionBox: { border: '2px solid #007bff', padding: '15px', borderRadius: '8px', backgroundColor: '#e6f0ff' }
+    predictionBox: { border: '2px solid #007bff', padding: '15px', borderRadius: '8px', backgroundColor: '#e6f0ff', marginBottom: '20px' }
   };
+
+  // Notifikasi jika semua lawan sudah dihadapi
+  const allOpponentsFaced = possibleNextOpponents.length === 0;
 
   return (
     <div style={styles.container}>
@@ -69,6 +72,49 @@ const MagicChessPredictor: React.FC = () => {
         </button>
       </div>
 
-      <h2 style={{
-       
-      
+      <h2>Pilih Lawan yang Sudah Dihadapi:</h2>
+      <div style={styles.buttonGroup}>
+        {allPlayers.map((player) => (
+          <button
+            key={player}
+            onClick={() => togglePlayer(player)}
+            style={{
+              ...styles.buttonBase,
+              ...(foughtPlayers.includes(player) ? styles.buttonActive : styles.buttonInactive)
+            }}
+          >
+            {player}
+          </button>
+        ))}
+      </div>
+
+      <div style={styles.predictionBox}>
+        <h3>Lawan Berikutnya (Prediksi):</h3>
+        {allOpponentsFaced ? (
+          <p style={{ color: '#f44336', fontWeight: 'bold' }}>
+            Semua lawan sudah dihadapi!
+          </p>
+        ) : (
+          <ul>
+            {possibleNextOpponents.map(player => (
+              <li key={player} style={{ fontWeight: 'bold', color: '#007bff' }}>
+                {player}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <button onClick={nextRound} style={styles.nextButton}>
+        Babak Berikutnya
+      </button>
+      {currentRound > 7 && (
+        <div style={{ marginTop: '15px', color: '#f44336', fontWeight: 'bold' }}>
+          Babak sudah lebih dari 32, prediksi lawan tidak lagi efektif!
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default MagicChessPredictor;
