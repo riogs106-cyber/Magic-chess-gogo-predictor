@@ -70,3 +70,5 @@ const MagicChessPredictor: React.FC = () => {
       </div>
 
       <h2 style={{
+      npm install --save-dev typescript @types/react @types/node
+      
