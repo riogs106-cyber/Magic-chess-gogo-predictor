@@ -110,7 +110,7 @@ const MagicChessPredictor: React.FC = () => {
       </button>
       {currentRound > 7 && (
         <div style={{ marginTop: '15px', color: '#f44336', fontWeight: 'bold' }}>
-          Babak sudah lebih dari 32, prediksi lawan tidak lagi efektif!
+          Babak sudah lebih dari 7, prediksi lawan tidak lagi efektif!
         </div>
       )}
     </div>
