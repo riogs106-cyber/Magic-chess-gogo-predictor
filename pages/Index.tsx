@@ -105,7 +105,7 @@ const MagicChessPredictor: React.FC = () => {
         </div>
       )}
     </div>
-  );
+  );npm install --save-dev @types/react @types/node
 };
 
 export default MagicChessPredictor;
