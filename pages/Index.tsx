@@ -1,67 +1,67 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 
 // Konstanta
 const TOTAL_PLAYERS = 8;
-// Daftar 7 lawan yang mungkin (kita anggap Anda adalah Pemain 8)
-const allPlayers: string[] = Array.from({ length: TOTAL_PLAYERS - 1 }, (_, i) => `Lawan ${i + 1}`);
+const PLAYER_NAME = 'Anda';
+
+// Buat nama-nama lawan
+const allPlayers: string[] = Array.from({ length: TOTAL_PLAYERS }, (_, i) => (i === TOTAL_PLAYERS - 1 ? PLAYER_NAME : `Lawan ${i + 1}`));
+// Index Anda adalah pemain ke-8 (index 7)
+const myIndex = TOTAL_PLAYERS - 1;
 
 const MagicChessPredictor: React.FC = () => {
   // State untuk melacak siapa saja yang sudah dilawan
-  const [foughtPlayers, setFoughtPlayers] = useState<string[]>([]);
-  // State untuk melacak babak saat ini (opsional, untuk tampilan)
+  const [foughtPlayers, setFoughtPlayers] = useState<number[]>([]);
+  // State untuk babak
   const [currentRound, setCurrentRound] = useState<number>(1);
+  // State untuk history pairing
+  const [history, setHistory] = useState<{round: number, opponent: number | null}[]>([]);
 
-  // Fungsi untuk menambah/menghapus lawan yang sudah dihadapi
-  const togglePlayer = (player: string) => {
-    setFoughtPlayers(prev => 
-      prev.includes(player)
-        ? prev.filter((p) => p !== player) // Hapus jika sudah ada
-        : [...prev, player] // Tambahkan jika belum ada
-    );
-  };
-
-  // Memoized: Menghitung lawan yang tersisa
-  const possibleNextOpponents = useMemo<string[]>(() => {
-    return allPlayers.filter((player) => !foughtPlayers.includes(player));
-  }, [foughtPlayers]);
-
-  // Fungsi untuk mereset game
-  const resetGame = () => {
-    setFoughtPlayers([]);
-    setCurrentRound(1);
+  // Fungsi pairing Swiss sederhana: pilih lawan yang belum pernah dihadapi, urut dari index terkecil
+  const getNextOpponent = (): number | null => {
+    const belumDilawan = allPlayers
+      .map((_, idx) => idx)
+      .filter(idx => idx !== myIndex && !foughtPlayers.includes(idx));
+    if (belumDilawan.length === 0) return null;
+    // Bisa random di antara belum dilawan, tapi kita ambil yang index terkecil
+    return belumDilawan[0];
   };
 
   // Fungsi untuk maju babak
   const nextRound = () => {
-    // Hanya majukan babak jika belum mencapai batas 7 lawan
-    if (currentRound < 7) {
-      setCurrentRound((prev) => prev + 1);
+    if (currentRound > TOTAL_PLAYERS - 1) return; // maksimal lawan adalah 7
+    const nextOpponent = getNextOpponent();
+    if (nextOpponent !== null) {
+      setFoughtPlayers(prev => [...prev, nextOpponent]);
+      setHistory(prev => [...prev, {round: currentRound, opponent: nextOpponent}]);
     } else {
-      // Jika sudah babak 7 ke atas, prediksi tidak lagi efektif
-      setCurrentRound((prev) => prev + 1); 
+      setHistory(prev => [...prev, {round: currentRound, opponent: null}]);
     }
+    setCurrentRound(prev => prev + 1);
   };
 
-  // Gaya sederhana (agar bisa langsung jalan tanpa styling terpisah)
+  // Reset
+  const resetGame = () => {
+    setFoughtPlayers([]);
+    setCurrentRound(1);
+    setHistory([]);
+  };
+
+  // Style sederhana
   const styles: { [key: string]: React.CSSProperties } = {
     container: { padding: '20px', fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif', maxWidth: '800px', margin: '0 auto' },
-    buttonGroup: { display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' },
-    buttonBase: { padding: '10px 15px', border: '1px solid #ccc', borderRadius: '5px', cursor: 'pointer', transition: 'background-color 0.2s' },
-    buttonActive: { backgroundColor: '#4CAF50', color: 'white', border: 'none' },
-    buttonInactive: { backgroundColor: '#f0f0f0', color: 'black' },
     resetButton: { padding: '10px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginBottom: '20px' },
     nextButton: { marginTop: '20px', padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' },
     predictionBox: { border: '2px solid #007bff', padding: '15px', borderRadius: '8px', backgroundColor: '#e6f0ff', marginBottom: '20px' }
   };
 
-  // Notifikasi jika semua lawan sudah dihadapi
-  const allOpponentsFaced = possibleNextOpponents.length === 0;
+  // Lawan berikutnya
+  const nextOpponent = getNextOpponent();
 
   return (
     <div style={styles.container}>
-      <h1>🔮 Magic Chess Lawan Berikutnya</h1>
+      <h1>🔮 Magic Chess Prediksi Lawan Berikutnya (Swiss System)</h1>
       <p>Anda adalah <b>Pemain ke-8</b> dari {TOTAL_PLAYERS} pemain.</p>
-      
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
         <p>
           <b>Babak Saat Ini:</b> <span style={{ color: '#007bff', fontWeight: 'bold' }}>{currentRound}</span> | 
@@ -72,45 +72,36 @@ const MagicChessPredictor: React.FC = () => {
         </button>
       </div>
 
-      <h2>Pilih Lawan yang Sudah Dihadapi:</h2>
-      <div style={styles.buttonGroup}>
-        {allPlayers.map((player) => (
-          <button
-            key={player}
-            onClick={() => togglePlayer(player)}
-            style={{
-              ...styles.buttonBase,
-              ...(foughtPlayers.includes(player) ? styles.buttonActive : styles.buttonInactive)
-            }}
-          >
-            {player}
-          </button>
-        ))}
-      </div>
-
       <div style={styles.predictionBox}>
-        <h3>Lawan Berikutnya (Prediksi):</h3>
-        {allOpponentsFaced ? (
-          <p style={{ color: '#f44336', fontWeight: 'bold' }}>
-            Semua lawan sudah dihadapi!
-          </p>
+        <h3>Lawan Berikutnya (Prediksi Otomatis):</h3>
+        {currentRound > TOTAL_PLAYERS - 1 || nextOpponent === null ? (
+          <p style={{ color: '#f44336', fontWeight: 'bold' }}>Semua lawan sudah dihadapi atau babak sudah habis!</p>
         ) : (
-          <ul>
-            {possibleNextOpponents.map(player => (
-              <li key={player} style={{ fontWeight: 'bold', color: '#007bff' }}>
-                {player}
-              </li>
-            ))}
-          </ul>
+          <p>
+            Di <b>Babak {currentRound}</b>, lawan berikutnya kemungkinan besar adalah: <br />
+            <span style={{ fontWeight: 'bold', color: '#007bff', fontSize: '1.25em' }}>{allPlayers[nextOpponent]}</span>
+          </p>
         )}
       </div>
 
-      <button onClick={nextRound} style={styles.nextButton}>
+      <button onClick={nextRound} style={styles.nextButton} disabled={currentRound > TOTAL_PLAYERS - 1 || nextOpponent === null}>
         Babak Berikutnya
       </button>
-      {currentRound > 7 && (
+
+      <div style={{ marginTop: '25px' }}>
+        <h3>History Pertandingan Anda:</h3>
+        <ul>
+          {history.map((item, idx) => (
+            <li key={idx}>
+              Babak {item.round}: {item.opponent !== null ? allPlayers[item.opponent] : <span style={{ color: '#f44336' }}>Tidak ada lawan</span>}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {currentRound > TOTAL_PLAYERS - 1 && (
         <div style={{ marginTop: '15px', color: '#f44336', fontWeight: 'bold' }}>
-          Babak sudah lebih dari 7, prediksi lawan tidak lagi efektif!
+          Babak sudah lebih dari {TOTAL_PLAYERS - 1}, prediksi lawan tidak lagi efektif!
         </div>
       )}
     </div>
