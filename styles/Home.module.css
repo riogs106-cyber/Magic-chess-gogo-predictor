@@ -1,6 +1,5 @@
 .container {
   padding: 0 0.5rem;
-  /* Tambahan untuk tata letak penuh */
   min-height: 100vh;
 }
 
@@ -10,7 +9,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Start agar tidak terlalu di tengah */
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -19,15 +18,14 @@
   line-height: 1.15;
   font-size: 4rem;
   text-align: center;
-  color: #333; /* Warna judul */
+  color: #333;
 }
 
-/* Tata letak untuk kartu prediksi dan input */
 .grid {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  flex-wrap: wrap; /* Agar responsif di layar kecil */
+  flex-wrap: wrap;
   max-width: 1200px;
   margin-top: 3rem;
   width: 90%;
@@ -42,11 +40,11 @@
   border: 1px solid #eaeaea;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Sedikit bayangan */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .button {
-  background-color: #0070f3; /* Biru khas Vercel/Next.js */
+  background-color: #0070f3;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -54,7 +52,7 @@
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 0; /* Margin atas-bawah saja */
+  margin: 4px 0;
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.2s;
@@ -76,17 +74,16 @@
   margin-top: 2rem;
 }
 
-/* Responsif untuk layar kecil */
 @media (max-width: 768px) {
-    .title {
-        font-size: 2.5rem;
-    }
-    .grid {
-        flex-direction: column;
-        align-items: center;
-    }
-    .card {
-        width: 100%;
-        margin: 1rem 0;
-    }
+  .title {
+    font-size: 2.5rem;
   }
+  .grid {
+    flex-direction: column;
+    align-items: center;
+  }
+  .card {
+    width: 100%;
+    margin: 1rem 0;
+  }
+}
